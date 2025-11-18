@@ -10,7 +10,7 @@
           >docs</a
         >
       </div>
-      <form class="px-6" v-on:submit.prevent>
+      <form class="px-6" @submit.prevent>
         <div class="flex items-center justify-between mt-4">
           <label class="block mr-2 w-1/2">
             <span class="text-gray-700">Access Key</span>
@@ -19,8 +19,8 @@
             >
             <input
               autofocus
-              class="block form-input mt-1 w-full"
-              v-model="access_key"
+              class="block border border-gray-300 rounded mt-1 w-full px-3 py-2"
+              v-model="accessKey"
               type="text"
             />
           </label>
@@ -30,8 +30,8 @@
               >The secret key used to communicate with AWS</span
             >
             <input
-              class="block form-input mt-1 w-full"
-              v-model="secret_key"
+              class="block border border-gray-300 rounded mt-1 w-full px-3 py-2"
+              v-model="secretKey"
               type="password"
             />
           </label>
@@ -42,7 +42,7 @@
             >The name of the region in which to launch the EC2 instance to
             create the AMI</span
           >
-          <select class="block form-select mt-1 w-full" v-model="region">
+          <select class="block border border-gray-300 rounded mt-1 w-full px-3 py-2" v-model="region">
             <option disabled value="">Region</option>
             <option>us-east-1</option>
           </select>
@@ -54,8 +54,8 @@
             the currently running instance</span
           >
           <input
-            class="block form-input mt-1 w-full"
-            v-model="source_ami"
+            class="block border border-gray-300 rounded mt-1 w-full px-3 py-2"
+            v-model="sourceAmi"
             type="text"
           />
         </label>
@@ -65,8 +65,8 @@
             >The name of the resulting AMI</span
           >
           <input
-            class="block form-input mt-1 w-full"
-            v-model="ami_name"
+            class="block border border-gray-300 rounded mt-1 w-full px-3 py-2"
+            v-model="amiName"
             type="text"
           />
         </label>
@@ -75,7 +75,7 @@
           <span class="block text-gray-600 text-sm"
             >The EC2 instance type to use while building the AMI</span
           >
-          <select class="block form-select mt-1 w-full" v-model="instance_type">
+          <select class="block border border-gray-300 rounded mt-1 w-full px-3 py-2" v-model="instanceType">
             <option disabled value="">Instance Type</option>
             <option>t2.small</option>
           </select>
@@ -86,8 +86,8 @@
             >The username to connect to SSH with</span
           >
           <input
-            class="block form-input mt-1 w-full"
-            v-model="ssh_username"
+            class="block border border-gray-300 rounded mt-1 w-full px-3 py-2"
+            v-model="sshUsername"
             type="text"
           />
         </label>
@@ -95,7 +95,7 @@
           <div class="block flex-grow">
             <button
               class="shadow bg-blue-500 border border-blue-500 focus:outline-none hover:bg-blue-600 hover:border-blue-600 mb-4 mr-4 px-4 py-2 rounded text-white"
-              v-on:click="generate"
+              @click="generate"
             >
               <span class="block flex items-center">
                 Generate
@@ -112,7 +112,7 @@
             </button>
             <button
               class="shadow border border-transparent focus:outline-none hover:bg-gray-200 mb-4 mr-4 px-4 py-2 rounded"
-              v-on:click="copy"
+              @click="copy"
             >
               <span class="block flex items-center text-gray-700">
                 Copy
@@ -130,7 +130,7 @@
           </div>
           <button
             class="shadow border border-transparent focus:outline-none hover:bg-gray-200 mb-4 px-4 py-2 rounded text-gray-700"
-            v-on:click="clear"
+            @click="clear"
           >
             Clear
           </button>
@@ -153,91 +153,67 @@
         </p>
         <label class="block flex flex-wrap items-center">
           <span class="mr-2 select-none">Spaces</span>
-          <select class="block form-select" v-model="indent">
+          <select class="block border border-gray-300 rounded px-3 py-2" v-model.number="indent">
             <option disabled value="">---</option>
-            <option>2</option>
-            <option>4</option>
+            <option :value="2">2</option>
+            <option :value="4">4</option>
           </select>
         </label>
       </div>
-      <!-- eslint-disable-next-line -->
       <div class="text-gray-700 whitespace-pre-wrap" id="template">{{ templateJson }}</div>
     </div>
-    <notifications
-      classes="alert"
-      group="copy"
-      :max="1"
-      position="bottom right"
-    />
   </div>
 </template>
 
-<script>
-export default {
-  computed: {
-    templateJson: function() {
-      return JSON.stringify(this.template, null, " ".repeat(this.indent));
-    }
-  },
-  data: function() {
-    return {
-      indent: 2,
+<script setup>
+import { ref, computed } from 'vue'
 
-      // AMI Configuration
-      ami_name: "",
+const indent = ref(2)
+const amiName = ref('')
+const accessKey = ref('')
+const region = ref('us-east-1')
+const secretKey = ref('')
+const instanceType = ref('t2.small')
+const sourceAmi = ref('')
+const sshUsername = ref('root')
 
-      // Access Configuration
-      access_key: "",
-      region: "us-east-1",
-      secret_key: "",
+const template = ref({
+  _comment: 'Template created using Punk: https://github.com/jasonwalsh/punk',
+  builders: []
+})
 
-      // Run Configuration
-      instance_type: "t2.small",
-      source_ami: "",
+const templateJson = computed(() => {
+  return JSON.stringify(template.value, null, ' '.repeat(indent.value))
+})
 
-      // Communicator Configuration
-      ssh_username: "root",
+const clear = () => {
+  template.value.builders.pop()
+}
 
-      template: {
-        _comment:
-          "Template created using Punk: https://github.com/jasonwalsh/punk",
-        builders: []
-      }
-    };
-  },
-  methods: {
-    clear: function() {
-      this.template.builders.pop();
-    },
-    copy: function() {
-      // Copies the text in the div container to the clipboard.
-      let template = document.getElementById("template");
-      let selection = window.getSelection();
-      let range = document.createRange();
-      range.selectNodeContents(template);
-      selection.removeAllRanges();
-      selection.addRange(range);
-      document.execCommand("copy");
-      selection.removeRange(range);
-      this.$notify({
-        group: "copy",
-        text: "Template copied to clipboard!"
-      });
-    },
-    generate: function() {
-      // Remove the first element from the builders list to prevent appending.
-      this.template.builders.pop();
-      let builder = {};
-      builder.access_key = this.access_key;
-      builder.ami_name = this.ami_name;
-      builder.instance_type = this.instance_type;
-      builder.region = this.region;
-      builder.secret_key = this.secret_key;
-      builder.source_ami = this.source_ami;
-      builder.ssh_username = this.ssh_username;
-      builder.type = "amazon-ebs";
-      this.template.builders.push(builder);
-    }
+const copy = () => {
+  const templateEl = document.getElementById('template')
+  const selection = window.getSelection()
+  const range = document.createRange()
+  range.selectNodeContents(templateEl)
+  selection.removeAllRanges()
+  selection.addRange(range)
+  document.execCommand('copy')
+  selection.removeRange(range)
+  alert('Template copied to clipboard!')
+}
+
+const generate = () => {
+  template.value.builders.pop()
+  const builder = {
+    access_key: accessKey.value,
+    ami_name: amiName.value,
+    instance_type: instanceType.value,
+    region: region.value,
+    secret_key: secretKey.value,
+    source_ami: sourceAmi.value,
+    ssh_username: sshUsername.value,
+    type: 'amazon-ebs'
   }
-};
+  template.value.builders.push(builder)
+}
 </script>

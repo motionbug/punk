@@ -1,11 +1,7 @@
-import Vue from "vue";
-import App from "./App.vue";
-import Notifications from "vue-notification";
-import "./assets/css/styles.css";
+import { createApp } from 'vue'
+import App from './App.vue'
+import './assets/css/styles.css'
 
-Vue.config.productionTip = false;
-Vue.use(Notifications);
+const app = createApp(App)
 
-new Vue({
-  render: h => h(App)
-}).$mount("#app");
+app.mount('#app')

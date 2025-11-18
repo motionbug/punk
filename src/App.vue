@@ -1,21 +1,14 @@
 <template>
-  <div class="container min-w-full" id="app">
+  <div class="container min-w-full">
     <nav class="flex items-center justify-between flex-wrap bg-blue-500 p-6">
       <div class="flex items-center flex-shrink-0 text-white mr-6">
-        <span class="font-semibold text-xl">Punk</span>
+        <span class="font-semibold text-xl">Punk - macOS Tahoe (Tart)</span>
       </div>
     </nav>
-    <AmazonEBS />
+    <MacOSTahoe />
   </div>
 </template>
 
-<script>
-import AmazonEBS from "./components/AmazonEBS.vue";
-
-export default {
-  name: "App",
-  components: {
-    AmazonEBS
-  }
-};
+<script setup>
+import MacOSTahoe from "./components/MacOSTahoe.vue"
 </script>

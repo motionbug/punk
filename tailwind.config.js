@@ -1,27 +1,16 @@
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}"
+  ],
   theme: {
-    customForms: theme => ({
-      default: {
-        input: {
-          "&:focus": {
-            borderColor: theme("colors.blue.500"),
-            boxShadow: undefined
-          }
-        },
-        select: {
-          "&:focus": {
-            borderColor: theme("colors.blue.500"),
-            boxShadow: undefined
-          }
-        }
+    extend: {
+      fontFamily: {
+        mono: ["Roboto Mono", "monospace"],
+        sans: ["Roboto", "sans-serif"]
       }
-    }),
-    extend: {},
-    fontFamily: {
-      mono: ["Roboto Mono", "monospace"],
-      sans: ["Roboto", "sans-serif"]
     }
   },
-  variants: {},
-  plugins: [require("@tailwindcss/custom-forms")]
-};
+  plugins: []
+}
